@@ -10,5 +10,9 @@ public interface CartItemRepository extends JpaRepository<CartItemEntity, Long> 
 
     Optional<CartItemEntity> findByProductId(Long productId);
 
+    Optional<CartItemEntity> findByProductIdAndCreatedBy(Long productId, String username);
+
     Collection<CartItemEntity> findAllByCreatedBy(String username);
+
+    void deleteAllByCreatedBy(String username);
 }

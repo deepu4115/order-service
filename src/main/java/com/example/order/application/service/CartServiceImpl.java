@@ -13,6 +13,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -23,17 +25,41 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItem createCartItem(@NonNull Long productId, int quantity) {
-        log.info("Attempting to create cart item for productId: {} with quantity: {}", productId, quantity);
+        return createCartItemForUser(productId, quantity, null);
+    }
+
+    @Override
+    public CartItem createCartItemForUser(@NonNull Long productId, int quantity, String username) {
+        log.info("Attempting to create cart item for productId: {} with quantity: {} for user: {}", productId, quantity, username);
 
         Product product = this.validateProductAvailabilityAndGet(productId, quantity);
-        CartItem cartItem = cartItemRepository.findByProductId(productId)
-                .map(item -> {
-                    item.updateQuantity(quantity);
-                    return item;
-                })
-                .orElseGet(() -> CartItem.createNew(productId, quantity));
+        CartItem cartItem = (username != null && !username.isBlank())
+                ? cartItemRepository.findByProductIdAndCreatedBy(productId, username)
+                        .map(item -> {
+                            item.updateQuantity(quantity);
+                            return item;
+                        })
+                        .orElseGet(() -> CartItem.builder()
+                                .productId(productId)
+                                .quantity(quantity)
+                                .createdBy(username)
+                                .build())
+                : cartItemRepository.findByProductId(productId)
+                        .map(item -> {
+                            item.updateQuantity(quantity);
+                            return item;
+                        })
+                        .orElseGet(() -> CartItem.createNew(productId, quantity));
 
         return cartItemRepository.save(cartItem);
+    }
+
+    @Override
+    public List<CartItem> getCartItemsForUser(String username) {
+        if (username == null || username.isBlank()) {
+            return java.util.Collections.emptyList();
+        }
+        return cartItemRepository.findAllByCreatedBy(username);
     }
 
     @Override

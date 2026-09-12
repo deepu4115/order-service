@@ -31,6 +31,12 @@ public class CartItemRepositoryAdapter implements com.example.order.domain.repos
     }
 
     @Override
+    public Optional<CartItem> findByProductIdAndCreatedBy(Long productId, String username) {
+        return cartItemRepository.findByProductIdAndCreatedBy(productId, username)
+                .map(cartEntityMapper::toCartItem);
+    }
+
+    @Override
     public Optional<CartItem> findById(long cartItemId) {
         return cartItemRepository.findById(cartItemId)
                 .map(cartEntityMapper::toCartItem);
@@ -52,5 +58,10 @@ public class CartItemRepositoryAdapter implements com.example.order.domain.repos
                 .stream()
                 .map(cartEntityMapper::toCartItem)
                 .toList();
+    }
+
+    @Override
+    public void deleteAllByCreatedBy(String username) {
+        cartItemRepository.deleteAllByCreatedBy(username);
     }
 }

@@ -20,4 +20,9 @@ public class ProductClientAdapter implements ProductClient {
     public Product getProductById(Long id) {
         return productFeignClient.getProductById(id);
     }
+
+    @Override
+    public Product decrementStock(Long id, int quantity) {
+        return productFeignClient.decrementStock(id, quantity);
+    }
 }

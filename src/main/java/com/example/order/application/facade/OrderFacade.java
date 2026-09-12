@@ -27,6 +27,13 @@ public class OrderFacade {
         return orderMapper.mapToOrderResponse(order);
     }
 
+    public java.util.List<OrderResponse> getOrdersForUser(String username) {
+        return orderService.getOrdersForUser(username)
+                .stream()
+                .map(orderMapper::mapToOrderResponse)
+                .toList();
+    }
+
     public OrderItemResponse updateOrderStatus(Long orderItemId, OrderStatus orderStatus) {
         OrderItem orderItem = orderService.updateOrderStatus(orderItemId, orderStatus);
         return orderMapper.mapToOrderItemResponse(orderItem);

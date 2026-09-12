@@ -8,5 +8,6 @@ public interface ProductClient {
 
     boolean checkProductAvailability(@PathVariable("id") Long id, @RequestParam("quantity") int quantity);
     Product getProductById(@PathVariable("id") Long id);
+    Product decrementStock(@PathVariable("id") Long id, @RequestParam("quantity") int quantity);
 
 }

@@ -7,7 +7,12 @@ import com.example.order.domain.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -17,9 +22,17 @@ public class OrderController {
     private final OrderFacade orderFacade;
 
     @PostMapping("/orders")
-    public ResponseEntity<OrderResponse> createOrder(String username) {
-        OrderResponse response = orderFacade.createOrder(username);
+    public ResponseEntity<OrderResponse> createOrder(@RequestParam(required = false) String username, Principal principal) {
+        String authUser = getUsername(principal, username);
+        OrderResponse response = orderFacade.createOrder(authUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderResponse>> getUserOrders(Principal principal) {
+        String authUser = getUsername(principal, null);
+        List<OrderResponse> orders = orderFacade.getOrdersForUser(authUser);
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/orders/{orderId}")
@@ -38,5 +51,16 @@ public class OrderController {
     public ResponseEntity<OrderItemResponse> cancelOrder(@PathVariable Long itemId) {
         OrderItemResponse response = orderFacade.cancelOrder(itemId);
         return ResponseEntity.ok(response);
+    }
+
+    private String getUsername(Principal principal, String fallbackUsername) {
+        if (principal != null && principal.getName() != null && !principal.getName().isBlank()) {
+            return principal.getName();
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getName() != null && !auth.getName().isBlank()) {
+            return auth.getName();
+        }
+        return fallbackUsername;
     }
 }

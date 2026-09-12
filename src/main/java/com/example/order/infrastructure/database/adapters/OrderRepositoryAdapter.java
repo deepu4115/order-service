@@ -29,4 +29,12 @@ public class OrderRepositoryAdapter implements OrderRepository {
         return orderJpaRepository.findById(orderId)
                 .map(orderEntityMapper::toOrderDomain);
     }
+
+    @Override
+    public java.util.List<Order> findAllByCreatedBy(String username) {
+        return orderJpaRepository.findAllByCreatedBy(username)
+                .stream()
+                .map(orderEntityMapper::toOrderDomain)
+                .toList();
+    }
 }

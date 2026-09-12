@@ -13,10 +13,12 @@ public class Order {
     private List<OrderItem> orderItems;
     private Instant createdAt;
     private Instant updatedAt;
+    private String createdBy;
 
-    public static Order createNew(List<OrderItem> orderItems) {
+    public static Order createNew(List<OrderItem> orderItems, String createdBy) {
         return Order.builder()
                 .orderItems(orderItems)
+                .createdBy(createdBy)
                 .build();
     }
 }
